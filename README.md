@@ -11,3 +11,11 @@ DEPENDENCIES:
 
 Python
 PIL
+
+
+TODO:
+
+-Add recursive directory traversal
+-Add parameter for specifying a target directory
+
+
