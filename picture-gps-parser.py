@@ -130,38 +130,36 @@ for files in os.listdir("."):
 			img = Image.open(files)
 			exif_data = get_exif_data(img)
 			location =  get_lat_lon(exif_data)
-			make = exif_data['Make']
-			model = exif_data['Model']
-			pic_dt = exif_data['DateTime']
-			pic_dt2 = exif_data['DateTimeDigitized']
-			pic_dt3 = exif_data['DateTimeOriginal']
 			
-			##for tag, value in exif_data.items():
-			##	decoded = TAGS.get(tag, tag)
-			##	item[decoded] = value
+			
+			#check if EXIF data exists, if not skip the file
+			if(exif_data != {}):
+				make = exif_data['Make']
+				model = exif_data['Model']
+				pic_dt = exif_data['DateTime']
+				pic_dt2 = exif_data['DateTimeDigitized']
+				pic_dt3 = exif_data['DateTimeOriginal']
+			
 				
-			##print exif_data
+				##print exif_data
 
-			fout.write("<td><a href=\""+path+"\">"+filename+"</a></td>")
-			fout.write("<td>" + filetype + "</td>")
-			fout.write("<td>" + pic_dt + "  ("+pic_dt2+")  ("+pic_dt3+")"+ "</td>")
-			fout.write("<td>" + str(location[0]) + ", " + str(location[1]) + "</td>")
+				fout.write("<td><a href=\""+path+"\">"+filename+"</a></td>")
+				fout.write("<td>" + filetype + "</td>")
+				fout.write("<td>" + pic_dt + "  ("+pic_dt2+")  ("+pic_dt3+")"+ "</td>")
+				fout.write("<td>" + str(location[0]) + ", " + str(location[1]) + "</td>")
 			
-			if "none" in str(location).lower():
-				fout.write("<td></td>")
+				if "none" in str(location).lower():
+					fout.write("<td></td>")
+				else:
+					fout.write("<td><a href=\"https://maps.google.com/maps?f=q&q=loc:"+ str(location[0]) + "," + str(location[1]) +"\">Google Maps</a></td>")
+				fout.write("<td>" + make + "</td>")
+				fout.write("<td>" + model + "</td>")
+				fout.write("<td>" + sha1hash + "</td>")
 			else:
-				fout.write("<td><a href=\"https://maps.google.com/maps?f=q&q=loc:"+ str(location[0]) + "," + str(location[1]) +"\">Google Maps</a></td>")
-			fout.write("<td>" + make + "</td>")
-			fout.write("<td>" + model + "</td>")
-			fout.write("<td>" + sha1hash + "</td>")
-			#print item[GPSInfo]
-			#print "**"
+				print "No EXIF data for " + files + ", not processing picture further"
 		except IOError:
-			print "Unable to open file (" + path + ").  This might be due to missing/corrupted EXIF data.  Skipping"
-		
+			print "Unable to open file (" + path + ").  This might be due to missing/corrupted EXIF data.  Skipping" 
 		fout.write("</tr>") #end table row
-		#print path
-		#print files
 
 #add last of HTML code and close file
 fout.write("</table>")
