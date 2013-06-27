@@ -2,7 +2,7 @@
 # Description: Parses EXIF data on pictures to get GPS location data.  Outputs an HTML file containing
 #
 # By: Jason Landsborough
-# Last updated: 06/18/13
+# Last updated: 06/26/13
 #
 # Forked from script (get_lat_lon_exif_pil.py) posted by Eran Sandler, here: https://gist.github.com/erans/983821 
 #
@@ -13,6 +13,13 @@ import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import hashlib
+
+
+
+###  GLOBAL VARIABLES ###
+global_target = os.getcwd()	#Default is same directory as python script
+global_recursion = 1		#1 to enable 	0 to disable
+
 
 
 
@@ -90,47 +97,36 @@ def get_lat_lon(exif_data):
 
 
 
-
-
-#get date and time
-now_time = datetime.datetime.now()
-now_dt = now_time.strftime("%Y-%m-%d_%H-%M")
-
-#open file
-fout = open("images_" + now_dt + ".html", "w")
-#write initial HTML code to file
-fout.write("<HTML><BODY>")
-fout.write("<table border=\"1\">")
-fout.write("<tr><b><td>Image</td><td>Type</td><td>Date Taken</td><td>GPS Coordinates</td><td>map</td><td>Make</td><td>Model</td><td>SHA1 Hash</td></b></tr>")
-
-#for all files in the current directory
-for files in os.listdir("."):
-	if ".jpeg"in files.lower() or ".jpg" in files.lower():
+#Function: 	get_from_file(current_file)
+#Parameters: 	current_file - Path to a file
+#Description:	Checks if current_file is an image, if so, tries to extract EXIF data from it
+#
+def get_from_file(current_file):
+	#Check if the file is an image (currently only jpegs, need to test other files if they support EXIF)
+	if ".jpeg"in current_file.lower() or ".jpg" in current_file.lower():			
 		fout.write("<tr>")
-		f = open(files)
-		path =  os.path.abspath(files);
+		f = open(current_file)
+		path =  os.path.abspath(current_file);
 		print "f:" + str(f)
 		filename = os.path.basename(path)
 		
+		#get file hash	
 		sha1 = hashlib.sha1()
 		try:
 		        sha1.update(f.read())
 		finally:
 			f.close()
-       		sha1hash = sha1.hexdigest() 
+		sha1hash = sha1.hexdigest() 
 		print "f:" + str(f)
 		
-		#print path	
+		#Open image, extract EXIF, and output results
 		try:
-			#write row
-				
-			item = {}
+			#write row		
 			##IF MORE TYPES ARE ADDED, change this to determine filetype
 			filetype = "jpeg"
-			img = Image.open(files)
+			img = Image.open(current_file)			
 			exif_data = get_exif_data(img)
 			location =  get_lat_lon(exif_data)
-			
 			
 			#check if EXIF data exists, if not skip the file
 			if(exif_data != {}):
@@ -139,10 +135,8 @@ for files in os.listdir("."):
 				pic_dt = exif_data['DateTime']
 				pic_dt2 = exif_data['DateTimeDigitized']
 				pic_dt3 = exif_data['DateTimeOriginal']
-			
 				
 				##print exif_data
-
 				fout.write("<td><a href=\""+path+"\">"+filename+"</a></td>")
 				fout.write("<td>" + filetype + "</td>")
 				fout.write("<td>" + pic_dt + "  ("+pic_dt2+")  ("+pic_dt3+")"+ "</td>")
@@ -151,16 +145,46 @@ for files in os.listdir("."):
 				if "none" in str(location).lower():
 					fout.write("<td></td>")
 				else:
-					fout.write("<td><a href=\"https://maps.google.com/maps?f=q&q=loc:"+ str(location[0]) + "," + str(location[1]) +"\">Google Maps</a></td>")
+					fout.write("<td><a href=\"https://maps.google.com/maps?f=q&q=loc:"+ \
+							str(location[0]) + "," + str(location[1]) +"\">Google Maps</a></td>")
 				fout.write("<td>" + make + "</td>")
 				fout.write("<td>" + model + "</td>")
 				fout.write("<td>" + sha1hash + "</td>")
 			else:
-				print "No EXIF data for " + files + ", not processing picture further"
+				print "No EXIF data for " + current_file + ", not processing picture further"
 		except IOError:
 			print "Unable to open file (" + path + ").  This might be due to missing/corrupted EXIF data.  Skipping" 
 		fout.write("</tr>") #end table row
 
+
+
+#get date and time
+now_time = datetime.datetime.now()
+now_dt = now_time.strftime("%Y-%m-%d_%H-%M")
+
+#open output file
+fout = open("images_" + now_dt + ".html", "w")
+#write initial HTML code to file
+fout.write("<HTML><BODY>")
+fout.write("<table border=\"1\">")
+fout.write("<tr><b><td>Image</td><td>Type</td><td>Date Taken</td><td>GPS Coordinates</td><td>map</td><td>Make</td><td>Model</td><td>SHA1 Hash</td></b></tr>")
+
+
+#if recursion
+if(global_recursion == 1):
+	#for all files in the current directory and subdirectories
+	for curdir, thedir, files in os.walk(global_target):
+		for thefile in files: 
+			get_from_file(curdir + "/" + thefile)
+#if no recursion
+elif(global_recursion == 0):
+	#for all files in the current directory and subdirectories
+	for thefile in os.listdir(global_target): 
+		get_from_file(global_target + "/" + thefile)	
+#if bad recursion option
+else:
+	print "Unknown recursion option"
+		
 #add last of HTML code and close file
 fout.write("</table>")
 fout.write("</BODY></HTML>")
