@@ -2,26 +2,28 @@
 # Description: Parses EXIF data on pictures to get GPS location data.  Outputs an HTML file containing
 #
 # By: Jason Landsborough
-# Last updated: 06/26/13
+# Last updated: 06/27/13
 #
 # Forked from script (get_lat_lon_exif_pil.py) posted by Eran Sandler, here: https://gist.github.com/erans/983821 
 #
-# Parameters: None
+# Parameters: 	-r 			-- (Optional) Enable recursion
+#		-t DIRECTORY_NAME	-- (Optional) Parse files in DIRECTORY_NAME
+#
+#
 
 import os
 import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import hashlib
+import sys
 
 
-
-###  GLOBAL VARIABLES ###
-global_target = os.getcwd()	#Default is same directory as python script
-global_recursion = 1		#1 to enable 	0 to disable
-
-
-
+###    GLOBAL VARIABLES AND CONFIG OPTIONS   ###
+global_target = os.getcwd()	#Default is same directory current working directory
+global_recursion = 0		#1 to enable 	0 to disable
+global_output_dir = os.getcwd()	#Default is same directory current working directory
+global_output_file = "out.html" #gets overridden with time-stamp-named file
 
 #from "get_lat_lon_exif_pil.py" (https://gist.github.com/erans/983821)
 def get_exif_data(image):
@@ -157,6 +159,37 @@ def get_from_file(current_file):
 		fout.write("</tr>") #end table row
 
 
+
+#look for command line arguments
+if(len(sys.argv) != 1):
+	print str(len(sys.argv))
+	print str(sys.argv)
+
+	#check for recursion
+	if('-r' in sys.argv):
+		print "Recursive traversal enabled"
+		global_recursion = 1
+
+	#check for target dir
+	if('-t' in sys.argv):
+		target_index = sys.argv.index('-t')
+		temp_global_target = sys.argv[target_index + 1]
+		if(os.path.isdir(temp_global_target)):
+			global_target = temp_global_target
+			print "Target directory: " + str(global_target)
+		else:
+			print "Invalid target directory"
+			exit()
+	#no target directory specified, make sure global_target is actually a directory
+	else:
+		if(not os.path.isdir(global_target)):				
+			print "Invalid target directory"
+			exit()
+	#check for output directory
+	#TODO
+
+	#check for output filename
+	#TODO
 
 #get date and time
 now_time = datetime.datetime.now()
