@@ -2,7 +2,7 @@
 # Description: Parses EXIF data on pictures to get GPS location data.  Outputs an HTML file containing
 #
 # By: Jason Landsborough
-# Last updated: 06/27/13
+# Last updated: 06/28/13
 #
 # Forked from script (get_lat_lon_exif_pil.py) posted by Eran Sandler, here: https://gist.github.com/erans/983821 
 #
@@ -24,6 +24,10 @@ global_target = os.getcwd()	#Default is same directory current working directory
 global_recursion = 0		#1 to enable 	0 to disable
 global_output_dir = os.getcwd()	#Default is same directory current working directory
 global_output_file = "out.html" #gets overridden with time-stamp-named file
+
+
+
+
 
 #from "get_lat_lon_exif_pil.py" (https://gist.github.com/erans/983821)
 def get_exif_data(image):
@@ -158,7 +162,9 @@ def get_from_file(current_file):
 			print "Unable to open file (" + path + ").  This might be due to missing/corrupted EXIF data.  Skipping" 
 		fout.write("</tr>") #end table row
 
-
+#get date and time
+now_time = datetime.datetime.now()
+now_dt = now_time.strftime("%Y-%m-%d_%H-%M")
 
 #look for command line arguments
 if(len(sys.argv) != 1):
@@ -174,6 +180,7 @@ if(len(sys.argv) != 1):
 	if('-t' in sys.argv):
 		target_index = sys.argv.index('-t')
 		temp_global_target = sys.argv[target_index + 1]
+		#check if valid directory
 		if(os.path.isdir(temp_global_target)):
 			global_target = temp_global_target
 			print "Target directory: " + str(global_target)
@@ -182,21 +189,40 @@ if(len(sys.argv) != 1):
 			exit()
 	#no target directory specified, make sure global_target is actually a directory
 	else:
+		#check if valid directory
 		if(not os.path.isdir(global_target)):				
 			print "Invalid target directory"
 			exit()
+
 	#check for output directory
-	#TODO
+	if('-o' in sys.argv):
+		target_od = sys.argv.index('-o')
+		temp_gtd = sys.argv[target_od + 1]
+		#check if valid directory
+		if(os.path.isdir(temp_gtd)):
+			global_output_dir = temp_gtd
+			print "Output Directory: " + str(global_output_dir)
+		else:
+			print "Invalid output directory"
+			exit()
+	else:
+		#check if valid directory
+		if(not os.path.isdir(global_output_dir)):
+			print "Invalid output directory"
+			exit() 	
+
 
 	#check for output filename
-	#TODO
+	if('-f' in sys.argv):
+		target_file = sys.argv.index('-f')
+		global_output_file = sys.argv[target_file + 1]
+	else:
+		global_output_file = "images_" + now_dt
 
-#get date and time
-now_time = datetime.datetime.now()
-now_dt = now_time.strftime("%Y-%m-%d_%H-%M")
+
 
 #open output file
-fout = open("images_" + now_dt + ".html", "w")
+fout = open(global_output_dir + "/" + global_output_file + ".html", "w")
 #write initial HTML code to file
 fout.write("<HTML><BODY>")
 fout.write("<table border=\"1\">")
