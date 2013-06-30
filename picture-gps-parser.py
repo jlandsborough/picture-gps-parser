@@ -8,7 +8,8 @@
 #
 # Parameters: 	-r 			-- (Optional) Enable recursion
 #		-t DIRECTORY_NAME	-- (Optional) Parse files in DIRECTORY_NAME
-#
+#		-o OUTPUT_DIRECTORY	-- (Optional) Specify the directory OUTPUT_DIRECTORY for the output file
+#		-f OUTPUT_FILE		-- (Optional) Ouput file as OUTPUT_FILE.html
 #
 
 import os
@@ -114,6 +115,7 @@ def get_from_file(current_file):
 		f = open(current_file)
 		path =  os.path.abspath(current_file);
 		print "f:" + str(f)
+		#get full path for file so it can be used for as html link to view image in the browser
 		filename = os.path.basename(path)
 		
 		#get file hash	
@@ -139,18 +141,19 @@ def get_from_file(current_file):
 				make = exif_data['Make']
 				model = exif_data['Model']
 				pic_dt = exif_data['DateTime']
-				pic_dt2 = exif_data['DateTimeDigitized']
-				pic_dt3 = exif_data['DateTimeOriginal']
+				pic_dt2 = exif_data['DateTimeDigitized']	#Tends to be the same as DateTime... might remove after extensive testing
+				pic_dt3 = exif_data['DateTimeOriginal']		#Tends to be the same as DateTime... might remove after extensive testing
 				
 				##print exif_data
 				fout.write("<td><a href=\""+path+"\">"+filename+"</a></td>")
 				fout.write("<td>" + filetype + "</td>")
 				fout.write("<td>" + pic_dt + "  ("+pic_dt2+")  ("+pic_dt3+")"+ "</td>")
 				fout.write("<td>" + str(location[0]) + ", " + str(location[1]) + "</td>")
-			
+				
+				#no GPS data, output nothing			
 				if "none" in str(location).lower():
 					fout.write("<td></td>")
-				else:
+				else:	#GPS data, link to coordinates on google maps
 					fout.write("<td><a href=\"https://maps.google.com/maps?f=q&q=loc:"+ \
 							str(location[0]) + "," + str(location[1]) +"\">Google Maps</a></td>")
 				fout.write("<td>" + make + "</td>")

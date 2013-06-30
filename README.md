@@ -21,11 +21,11 @@ Supports specifying a target directory or folder
 
 
 DEPENDENCIES: 
--Python 
--PIL
+-Python (http://www.python.org/download/releases/2.7.5/)
+-PIL (http://www.pythonware.com/products/pil/)
 
 
 TODO: 
--Add specifying output directory and file
+-See if filetypes other than .jpeg have exif data (.raw ?)
 
 
