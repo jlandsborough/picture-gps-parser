@@ -30,7 +30,7 @@ global_output_file = "out.html" #gets overridden with time-stamp-named file
 
 
 
-#from "get_lat_lon_exif_pil.py" (https://gist.github.com/erans/983821)
+#from "get_lat_lon_exif_pil.py" by Eran Sandler (https://gist.github.com/erans/983821)
 def get_exif_data(image):
     """Returns a dictionary from the exif data of an PIL Image item. Also converts the GPS Tags"""
     exif_data = {}
