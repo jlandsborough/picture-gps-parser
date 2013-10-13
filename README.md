@@ -1,7 +1,7 @@
 picture-gps-parser
 ==================
 
-Parses EXIF data on pictures to get GPS location data
+Parses EXIF data on pictures to get GPS location data  (Based off of script by Eran Sandler: https://gist.github.com/erans/983821)
 
 Outputs the results in an HTML file in a table including:
 	-link to the picture.	
